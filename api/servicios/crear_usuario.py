@@ -2,7 +2,7 @@ from conexion import Connection
 from fastapi import HTTPException
 
 # Función para crear un nuevo usuario en la base de datos
-def crear_usuario(correo: str, password: str):
+def crear_usuario(name:str, correo: str, password: str):
     connection = Connection()
     cursor = connection.conn.cursor()
     
@@ -15,7 +15,7 @@ def crear_usuario(correo: str, password: str):
             raise HTTPException(status_code=400, detail="El usuario ya está registrado")
         
         # Insertar el nuevo usuario
-        cursor.execute("INSERT INTO usuarios (correo, password) VALUES (%s, %s)", (correo, password))
+        cursor.execute("INSERT INTO usuarios (name, correo, password) VALUES (%s, %s, %s)", (name, correo, password))
         connection.conn.commit()
     except HTTPException as http_exc:
         raise http_exc

@@ -37,7 +37,7 @@ def registrar_usuario(usuario_data: Usuarios):
     password = usuario_data.password
 
     try:
-        crear_usuario(correo, password)
+        crear_usuario(name, correo, password)
         return {"message": "Usuario registrado correctamente"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -16,5 +16,10 @@ class LoginUser(BaseModel):
     correo: str
     password: str
 
+class User(BaseModel):
+    id: int
+    name: str
+    correo: str
+
 class Semestres(BaseModel):
     numero: int

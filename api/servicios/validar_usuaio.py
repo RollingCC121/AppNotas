@@ -27,3 +27,4 @@ def validar_usuario(correo: str, password: str):
     
     finally:
         del conn  # Cerrar la conexión cuando termine la operación
+    
