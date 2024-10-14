@@ -7,8 +7,26 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
 
-    const login = (userData) => {
-        setUser(userData);
+    const login = async (correo, password) => {
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ correo, password }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Login failed');
+            }
+
+            const userData = await response.json();
+            setUser(userData);
+            navigate('/panel');
+        } catch (error) {
+            console.error('Login error:', error);
+        }
     };
 
     const logout = () => {
