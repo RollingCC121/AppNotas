@@ -6,7 +6,7 @@ class Connection:
     def __init__(self):
         try:
             self.conn = psycopg2.connect(
-                "dbname=dbappweb user=postgres password=pollito host=3.228.108.255 port=5432"
+                "dbname=dbappnotas user=pollito password=pollito host=54.205.43.57 port=5432"
             )
             self.cur = self.conn.cursor()
         except psycopg2.OperationalError as err:

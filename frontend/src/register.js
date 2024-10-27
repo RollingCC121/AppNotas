@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Container, TextField, Button, Typography, Box } from '@mui/material';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -10,7 +11,6 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      // Llamada a la API para registrar al usuario
       const response = await fetch('http://localhost:8001/api/register', {
         method: 'POST',
         headers: {
@@ -20,13 +20,9 @@ const Register = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        // Manejar el éxito del registro, por ejemplo, guardar el token en localStorage
-        localStorage.setItem('token', data.token);
-        // Redirigir al usuario a la página de login
-        navigate('/login');
+        navigate('/login');  // Redirigir al login después de registrarse correctamente
       } else {
-        console.error('Registration failed');
+        console.error('Register failed');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -34,30 +30,66 @@ const Register = () => {
   };
 
   return (
-    <form onSubmit={handleRegister}>
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Nombre"
-        required
-      />
-      <input
-        type="email"
-        value={correo}
-        onChange={(e) => setCorreo(e.target.value)}
-        placeholder="Correo"
-        required
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        required
-      />
-      <button type="submit">Register</button>
-    </form>
+    <Container maxWidth="xs">
+      <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography component="h1" variant="h5">
+          Registrarse
+        </Typography>
+        <Box component="form" onSubmit={handleRegister} sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="name"
+            label="Nombre"
+            name="name"
+            autoComplete="name"
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="correo"
+            label="Correo"
+            name="correo"
+            autoComplete="email"
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Contraseña"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Registrarse
+          </Button>
+          <Button
+            fullWidth
+            variant="outlined"
+            sx={{ mt: 1 }}
+            onClick={() => navigate('/login')}
+          >
+            Iniciar Sesión
+          </Button>
+        </Box>
+      </Box>
+    </Container>
   );
 };
 

@@ -1,6 +1,6 @@
- sudo docker start 04fd454c7d27
- sudo docker exec -it 04fd454c7d27 psql -U postgres
- \c dbappweb
+sudo docker run --name mi_dbapweb -e POSTGRES_USER=pollito -e POSTGRES_PASSWORD=pollito -e POSTGRES_DB=dbappnotas -p 5432:5432 -v pgdata:/var/lib/postgresql/data -d postgres
+sudo docker start 061fde853794
+sudo docker exec -it 061fde853794 psql -U pollito -d dbappnotas
 
 CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
@@ -18,10 +18,26 @@ CREATE TABLE semestres (
 CREATE TABLE materias (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
-    codigo VARCHAR(50) NOT NULL,
-    creditos INTEGER NOT NULL,
     semestre_id INTEGER REFERENCES semestres(id)
 );
 
-insert into usuarios(correo,password) values('admin@admin.com','admin');
+insert into usuarios(name,correo,password) values('admin','admin@admin.com','admin123');
 select * from usuarios;
+
+
+
+INSERT INTO materias (nombre, semestre_id) VALUES ('Matemáticas', 6);
+
+SELECT 
+    semestres.numero AS semestre_numero,
+    materias.nombre AS materia_nombre
+FROM 
+    semestres
+JOIN 
+    materias ON semestres.id = materias.semestre_id
+JOIN 
+    usuarios ON semestres.usuario_id = usuarios.id
+WHERE 
+    usuarios.id = 8
+ORDER BY 
+    semestres.numero;
