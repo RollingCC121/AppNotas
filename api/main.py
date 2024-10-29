@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from modelos.schema import Usuarios,LoginUser, Token 
 from servicios.validar_login import validar_usuario, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from servicios.crear_usuario import crear_usuario
@@ -7,11 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Depends
 from datetime import timedelta
 from typing import List
-from modelos.schema import SemestreCreate
+from modelos.schema import SemestreCreate, VerSemestre
 from conexion import Connection
 from servicios.crear_pensum import add_semester, get_user_id_from_token
-
-
+from servicios.ver_pensum import get_pensum
 # Crear la aplicación FastAPI
 app = FastAPI()
 
@@ -61,3 +60,11 @@ async def add_semesters(semesters: List[SemestreCreate], user_id: int = Depends(
         add_semester(user_id=user_id, semester_data=semester, db=db)
     
     return {"message": "Semestres y materias registradas correctamente"}
+
+
+@app.get("/api/pensum/{user_id}", response_model=List[VerSemestre])
+def get_pensum_endpoint(user_id: int, current_user: int = Depends(get_user_id_from_token)):
+    if current_user != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this pensum")
+    
+    return get_pensum(user_id)

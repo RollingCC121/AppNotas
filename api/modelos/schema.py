@@ -28,3 +28,20 @@ class MateriaCreate(BaseModel):
 class SemestreCreate(BaseModel):
     numero: int
     materias: List[MateriaCreate]
+
+class VerMateria(BaseModel):
+    id: int
+    nombre: str
+    semestre_id: int
+
+    class Config:
+        orm_mode = True
+
+class VerSemestre(BaseModel):
+    id: int
+    numero: int
+    usuario_id: int
+    materias: List[VerMateria] = []
+
+    class Config:
+        orm_mode = True
