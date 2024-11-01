@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: dockerfile.api
+    container_name: api
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://pollito:pollito@db:5432/dbappnotas
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: dockerfile.frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+
+  db:
+    build:
+      context: ./db
+      dockerfile: dockerfile.db
+    container_name: db
+    environment:
+      POSTGRES_USER: pollito
+      POSTGRES_PASSWORD: pollito
+      POSTGRES_DB: dbappnotas
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

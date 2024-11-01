@@ -1,0 +1,10 @@
+# Usar una imagen base de PostgreSQL
+FROM postgres:13
+
+# Establecer variables de entorno para PostgreSQL
+ENV POSTGRES_USER=pollito
+ENV POSTGRES_PASSWORD=pollito
+ENV POSTGRES_DB=dbappnotas
+
+# Copiar el archivo SQL de inicialización a la imagen
+COPY init.sql /docker-entrypoint-initdb.d/

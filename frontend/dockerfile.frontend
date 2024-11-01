@@ -1,0 +1,26 @@
+# Usar una imagen base de Node.js
+FROM node:16
+
+# Establecer el directorio de trabajo
+WORKDIR /app
+
+# Copiar el archivo package.json y package-lock.json a la imagen
+COPY package.json package-lock.json ./
+
+# Instalar las dependencias
+RUN npm install
+
+# Copiar el código de la aplicación
+COPY . .
+
+# Construir la aplicación de React
+RUN npm run build
+
+# Instalar serve para servir la aplicación de React
+RUN npm install -g serve
+
+# Exponer el puerto que usará la aplicación de React
+EXPOSE 3000
+
+# Comando para ejecutar la aplicación de React
+CMD ["serve", "-s", "build"]
