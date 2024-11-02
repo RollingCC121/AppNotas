@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './CrearPensum.css';
 
 const CrearPensum = () => {
   const [semesters, setSemesters] = useState([]);

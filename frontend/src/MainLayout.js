@@ -20,7 +20,7 @@ const MainLayout = () => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            AppNotas
+            AppGenda
           </Typography>
           <Box>
             <Button color="inherit" onClick={() => navigate('/crear-pensum')}>

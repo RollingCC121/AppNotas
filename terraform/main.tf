@@ -1,56 +1,171 @@
 provider "aws" {
-  region = "us-east-1"
+  region = "us-west-2"  # Cambia a tu región preferida
 }
 
-resource "aws_ecs_cluster" "fastapi_cluster" {
-  name = "fastapi-cluster"
+# Definir VPC y Subredes
+resource "aws_vpc" "app_vpc" {
+  cidr_block = "10.0.0.0/16"
 }
 
-resource "aws_ecs_task_definition" "fastapi_task" {
-  family                   = "fastapi-task"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
+resource "aws_subnet" "app_subnet" {
+  vpc_id            = aws_vpc.app_vpc.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "us-west-2a"
+}
 
-  container_definitions = jsonencode([
-    {
-      name      = "api"
-      image     = "your_dockerhub_user/fastapi:latest"
-      essential = true
-      portMappings = [
-        {
-          containerPort = 8001
-          hostPort      = 8001
-        }
-      ]
-      environment = [
-        {
-          name  = "DATABASE_URL"
-          value = "postgresql://postgres:password@db:5432/postgres"
-        }
-      ]
-    },
-    {
-      name      = "db"
-      image     = "postgres:13"
-      essential = true
-      portMappings = [
-        {
-          containerPort = 5432
-          hostPort      = 5432
-        }
-      ]
-      environment = [
-        {
-          name  = "POSTGRES_USER"
-          value = "postgres"
-        },
-        {
-          name  = "POSTGRES_PASSWORD"
-          value = "password"
-        }
-      ]
-    }
-  ])
+# Crear un Security Group para PostgreSQL
+resource "aws_security_group" "postgres_sg" {
+  vpc_id = aws_vpc.app_vpc.id
+
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Crear un Security Group para FastAPI
+resource "aws_security_group" "fastapi_sg" {
+  vpc_id = aws_vpc.app_vpc.id
+
+  ingress {
+    from_port   = 8001
+    to_port     = 8001
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Crear un Security Group para React Frontend
+resource "aws_security_group" "frontend_sg" {
+  vpc_id = aws_vpc.app_vpc.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Instancia de PostgreSQL
+resource "aws_instance" "postgres_db" {
+  ami           = "ami-830c94e3"  # ID de AMI proporcionado para Ubuntu Server
+  instance_type = "t2.micro"
+  subnet_id     = aws_subnet.app_subnet.id
+  vpc_security_group_ids = [aws_security_group.postgres_sg.id]
+  associate_public_ip_address = true
+
+  tags = {
+    Name = "postgres-db"
+  }
+
+  user_data = <<-EOF
+              #!/bin/bash
+              apt-get update -y
+              apt-get install -y git docker.io
+              systemctl start docker
+              systemctl enable docker
+              # Clonar el repositorio
+              git clone https://github.com/tu-usuario/appnotas.git /home/ubuntu/appnotas
+              cd /home/ubuntu/appnotas/bd
+              # Construir y ejecutar el contenedor Docker
+              docker build -t postgres-db .
+              docker run -d -p 5432:5432 postgres-db
+              EOF
+}
+
+# API (FastAPI)
+resource "aws_instance" "fastapi_api" {
+  ami           = "ami-830c94e3"
+  instance_type = "t2.micro"
+  subnet_id     = aws_subnet.app_subnet.id
+  vpc_security_group_ids = [aws_security_group.fastapi_sg.id]
+   associate_public_ip_address = true
+
+  tags = {
+    Name = "fastapi-api"
+  }
+
+  user_data = <<-EOF
+              #!/bin/bash
+              apt-get update -y
+              apt-get install -y git docker.io
+              systemctl start docker
+              systemctl enable docker
+              # Clonar el repositorio
+              git clone https://github.com/tu-usuario/appnotas.git /home/ubuntu/appnotas
+              cd /home/ubuntu/appnotas/api
+              # Construir y ejecutar el contenedor Docker
+              docker build -t api-app .
+              docker run -d -p 8000:8000 api-app
+              EOF
+}
+
+# Frontend (React)
+resource "aws_instance" "react_frontend" {
+  ami           = "ami-830c94e3"  # Actualiza este ID de AMI con uno válido para Ubuntu Server
+  instance_type = "t2.micro"
+  subnet_id     = aws_subnet.app_subnet.id
+  vpc_security_group_ids = [aws_security_group.frontend_sg.id]
+  associate_public_ip_address = true
+
+  tags = {
+    Name = "Frontend-React"
+  }
+
+  user_data = <<-EOF
+              #!/bin/bash
+              apt-get update -y
+              apt-get install -y git docker.io
+              systemctl start docker
+              systemctl enable docker
+              # Clonar el repositorio
+              git clone https://github.com/tu-usuario/appnotas.git /home/ubuntu/appnotas
+              cd /home/ubuntu/appnotas/frontend
+              # Construir y ejecutar el contenedor Docker
+              docker build -t frontend-app .
+              docker run -d -p 80:80 frontend-app
+              EOF
+}
+
+output "postgres_db_ip" {
+  value = aws_instance.postgres_db.public_ip
+}
+
+output "fastapi_api_ip" {
+  value = aws_instance.fastapi_api.public_ip
+}
+
+output "frontend_instance_ip" {
+  value = aws_instance.react_frontend.public_ip
 }

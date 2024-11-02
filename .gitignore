@@ -1,0 +1,31 @@
+# Ignorar el directorio .terraform
+.terraform/
+
+# Ignorar archivos de configuración de Terraform
+*.tfstate
+*.tfstate.backup
+
+# Ignorar archivos de variables sensibles
+*.tfvars
+
+# Ignorar archivos de salida de Terraform
+crash.log
+*.tfplan
+
+# Ignorar archivos de credenciales de AWS
+.aws/
+
+# Ignorar archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de log
+*.log
+
+# Ignorar archivos de compilación
+build/
+dist/
+
+# Ignorar archivos de configuración de IDE
+.vscode/
+.idea/

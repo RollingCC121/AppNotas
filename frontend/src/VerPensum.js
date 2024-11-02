@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, List, ListItem, ListItemText } from '@mui/material';
+import './VerPensum.css';
 
 const VerPensum = () => {
   const [pensum, setPensum] = useState([]);
@@ -32,22 +33,22 @@ const VerPensum = () => {
   }, [userId]);
 
   return (
-    <Container sx={{ mt: 4 }}>
+    <Container className="container">
       <Typography variant="h4" gutterBottom>
         Ver Pensum
       </Typography>
-      <List>
+      <div className="semesters">
         {pensum.map((semestre, index) => (
-          <div key={index}>
+          <div key={index} className="semester">
             <Typography variant="h6">Semestre {semestre.numero}</Typography>
             {semestre.materias.map((materia, idx) => (
-              <ListItem key={idx}>
+              <ListItem key={idx} className="subject">
                 <ListItemText primary={materia.nombre} />
               </ListItem>
             ))}
           </div>
         ))}
-      </List>
+      </div>
     </Container>
   );
 };
