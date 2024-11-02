@@ -23,7 +23,7 @@ aws configure
 2. **EJECUTAMOS EL TERRAFORM**
 
 ```shell
-echo 'terraform init'
+terraform init
 terraform plan
 terraform apply
 ```
